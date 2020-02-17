@@ -3,7 +3,7 @@
 Usage
 ```
 const {getRtpEngine} = require('jambonz-rtpengine-utils')(['10.10.0.1:2222', '10.10.02:2222']);
-const obj = getRtpEngine():
+const obj = getRtpEngine(logger):
 /*
   obj is {
     offer:    /* bound function that calls 'offer' on least loaded rtpengine */

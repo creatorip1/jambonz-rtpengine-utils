@@ -7,6 +7,7 @@ const selectClient = (engines) => engines.filter((c) => c.active).sort((a, b) =>
 
 function testEngines(logger, engines, opts) {
   return setInterval(() => {
+    debug('starting rtpengine pings');
     engines.forEach(async(engine) => {
       try {
         const res = await engine.list();
@@ -33,16 +34,14 @@ function testEngines(logger, engines, opts) {
  * are associated with the rtpengine having fewest calls
  *
  * {Array} arr - an array of host:port of rtpengines and their ng control ports
- * {object} [logger] - a pino logger
  * {object} [opts] - configuration options
  * {number} [opts.timeout] - length of time in secs to wait for rtpengine to respond to a command
  * {number} [opts.pingInterval] - length of time in secs to ping rtpengines with a 'list' command
  */
-module.exports = function(arr, logger, opts) {
+module.exports = function(arr, opts) {
   assert.ok(Array.isArray(arr) && arr.length, 'jambonz-rtpengine-utils: missing array of host:port rtpengines');
   opts = opts || {};
   const client = new Client({timeout: opts.timeout || 1500});
-  logger = logger || noopLogger;
 
   const engines = arr
     .map((hp) => {
@@ -68,18 +67,18 @@ module.exports = function(arr, logger, opts) {
   debug(`engines: ${JSON.stringify(engines)}`);
 
   function getRtpEngine(logger) {
+    logger = logger || noopLogger;
     if (!timer) timer = testEngines(logger, engines, opts);
-    return () => {
-      const engine = selectClient(engines);
-      if (engine) {
-        debug({engine}, 'selected engine');
-        return {
-          offer: engine.offer,
-          answer: engine.answer,
-          del: engine.delete
-        };
-      }
-    };
+    debug(`selecting rtpengine from array of ${engines.length}`);
+    const engine = selectClient(engines);
+    if (engine) {
+      debug({engine}, 'selected engine');
+      return {
+        offer: engine.offer,
+        answer: engine.answer,
+        del: engine.delete
+      };
+    }
   }
 
   return {
