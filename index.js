@@ -3,9 +3,9 @@ const Client = require('rtpengine-client').Client ;
 const debug = require('debug')('jambonz:rtpengines-utils');
 let timer;
 const noopLogger = {info: () => {}, error: () => {}};
-const selectClient = () => engines.filter((c) => c.active).sort((a, b) => (a.calls - b.calls)).shift();
+const selectClient = (engines) => engines.filter((c) => c.active).sort((a, b) => (a.calls - b.calls)).shift();
 
-function testEngines(logger, opts) {
+function testEngines(logger, engines, opts) {
   return setInterval(() => {
     engines.forEach(async(engine) => {
       try {
@@ -31,7 +31,7 @@ function testEngines(logger, opts) {
  * that returned function (getRtpEngine) can be called repeatedly
  * to get a set of bound functions (offer, answer, del) that
  * are associated with the rtpengine having fewest calls
- * 
+ *
  * {Array} arr - an array of host:port of rtpengines and their ng control ports
  * {object} [logger] - a pino logger
  * {object} [opts] - configuration options
@@ -44,33 +44,33 @@ module.exports = function(arr, logger, opts) {
   logger = logger || noopLogger;
 
   const engines = arr
-  .split(',')
-  .map((hp) => {
-    const arr = /^(.*):(.*)$/.exec(hp.trim());
-    if (!arr) throw new Error('rtpengine-utils: must provide an array of host:port rtpengines');
-    const engine = {
-      active: true,
-      calls: 0,
-      host: arr[1],
-      port: parseInt(arr[2])
-    };
-    [
-      'offer',
-      'answer',
-      'delete',
-      'list',
-      'startRecording',
-      'stopRecording'
-    ].forEach((method) => engine[method] = client[method].bind(client, engine.port, engine.host));
-    return engine;
-  });
+    .split(',')
+    .map((hp) => {
+      const arr = /^(.*):(.*)$/.exec(hp.trim());
+      if (!arr) throw new Error('rtpengine-utils: must provide an array of host:port rtpengines');
+      const engine = {
+        active: true,
+        calls: 0,
+        host: arr[1],
+        port: parseInt(arr[2])
+      };
+      [
+        'offer',
+        'answer',
+        'delete',
+        'list',
+        'startRecording',
+        'stopRecording'
+      ].forEach((method) => engine[method] = client[method].bind(client, engine.port, engine.host));
+      return engine;
+    });
   assert.ok(engines.length > 0, 'rtpengine-utils: must provide an array of host:port rtpengines');
   debug(`engines: ${JSON.stringify(engines)}`);
 
   function getRtpEngine(logger) {
-    if (!timer) timer = testEngines(logger, opts);
+    if (!timer) timer = testEngines(logger, engines, opts);
     return () => {
-      const engine = selectClient();
+      const engine = selectClient(engines);
       if (engine) {
         debug({engine}, 'selected engine');
         return {
