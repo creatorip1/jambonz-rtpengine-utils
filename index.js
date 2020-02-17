@@ -44,7 +44,6 @@ module.exports = function(arr, logger, opts) {
   logger = logger || noopLogger;
 
   const engines = arr
-    .split(',')
     .map((hp) => {
       const arr = /^(.*):(.*)$/.exec(hp.trim());
       if (!arr) throw new Error('rtpengine-utils: must provide an array of host:port rtpengines');
