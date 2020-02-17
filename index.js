@@ -40,6 +40,7 @@ function testEngines(logger, engines, opts) {
  */
 module.exports = function(arr, logger, opts) {
   assert.ok(Array.isArray(arr) && arr.length, 'jambonz-rtpengine-utils: missing array of host:port rtpengines');
+  opts = opts || {};
   const client = new Client({timeout: opts.timeout || 1500});
   logger = logger || noopLogger;
 
