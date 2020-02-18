@@ -1,6 +1,7 @@
 const assert = require('assert');
 const Client = require('rtpengine-client').Client ;
 const debug = require('debug')('jambonz:rtpengines-utils');
+const Emitter = require('events');
 let timer;
 const noopLogger = {info: () => {}, error: () => {}};
 const selectClient = (engines) => engines.filter((c) => c.active).sort((a, b) => (a.calls - b.calls)).shift();
@@ -14,12 +15,14 @@ function testEngines(logger, engines, opts) {
         if ('ok' === res.result) {
           engine.calls = res.calls.length;
           engine.active = true;
-          if (opts.emitter) opts.emitter.emit('resourceCount', {
-            host: engine.host,
-            hostType: 'sbc',
-            resource: 'calls',
-            count: engine.calls
-          });
+          if (opts.emitter && opts.emitter instanceof Emitter) {
+            opts.emitter.emit('resourceCount', {
+              host: engine.host,
+              hostType: 'sbc',
+              resource: 'calls',
+              count: engine.calls
+            });
+          }
           logger.debug({res}, `rtpengine:list ${engine.host}:${engine.port} has ${engine.calls} calls`);
           return;
         }
