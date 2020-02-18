@@ -1,8 +1,8 @@
 {
   "name": "jambonz-rtpengine-utils",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "utility functions for managing rtpengine",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

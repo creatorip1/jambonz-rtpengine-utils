@@ -19,7 +19,7 @@ function testEngines(logger, engines, opts) {
             opts.emitter.emit('resourceCount', {
               host: engine.host,
               hostType: 'sbc',
-              resource: 'calls',
+              resource: 'media.calls',
               count: engine.calls
             });
           }
