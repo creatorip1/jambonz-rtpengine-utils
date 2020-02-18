@@ -14,10 +14,16 @@ function testEngines(logger, engines, opts) {
         if ('ok' === res.result) {
           engine.calls = res.calls.length;
           engine.active = true;
+          if (opts.emitter) opts.emitter.emit('resourceCount', {
+            host: engine.host,
+            hostType: 'sbc',
+            resource: 'calls',
+            count: engine.calls
+          });
           logger.debug({res}, `rtpengine:list ${engine.host}:${engine.port} has ${engine.calls} calls`);
           return;
         }
-        logger.info({rtpengine: engine.host, response: res}, 'Failure response from rtpengine');
+        logger.debug({rtpengine: engine.host, response: res}, 'Failure response from rtpengine');
         engine.active = false;
       } catch (err) {
         logger.info({rtpengine: engine.host, err}, 'Failure response from rtpengine');
