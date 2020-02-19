@@ -23,7 +23,7 @@ function testEngines(logger, engines, opts) {
               count: engine.calls
             });
           }
-          logger.debug({res}, `rtpengine:list ${engine.host}:${engine.port} has ${engine.calls} calls`);
+          debug({res}, `rtpengine:list ${engine.host}:${engine.port} has ${engine.calls} calls`);
           return;
         }
         logger.debug({rtpengine: engine.host, response: res}, 'Failure response from rtpengine');
