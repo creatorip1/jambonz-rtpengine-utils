@@ -15,7 +15,7 @@ function testEngines(logger, engines, opts) {
         if ('ok' === res.result) {
           engine.calls = res.calls.length;
           engine.active = true;
-          debug(`length of response packet: ${JSON.stringify(res).length}`);
+          debug(`length of response packet for ${engine.calls} calls: ${JSON.stringify(res).length}`);
           if (opts.emitter && opts.emitter instanceof Emitter) {
             opts.emitter.emit('resourceCount', {
               host: engine.host,
@@ -24,7 +24,6 @@ function testEngines(logger, engines, opts) {
               count: engine.calls
             });
           }
-          debug({res}, `rtpengine:list ${engine.host}:${engine.port} has ${engine.calls} calls`);
           return;
         }
         logger.debug({rtpengine: engine.host, response: res}, 'Failure response from rtpengine');
