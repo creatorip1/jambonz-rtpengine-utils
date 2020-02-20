@@ -7,14 +7,15 @@ const noopLogger = {info: () => {}, error: () => {}};
 const selectClient = (engines) => engines.filter((c) => c.active).sort((a, b) => (a.calls - b.calls)).shift();
 
 function testEngines(logger, engines, opts) {
-  return setInterval(() => {
+  return setInterval(async() => {
     debug('starting rtpengine pings');
-    engines.forEach(async(engine) => {
+    for (const engine of engines) {
       try {
-        const res = await engine.list();
+        const res = await engine.list({limit: 1000});
         if ('ok' === res.result) {
           engine.calls = res.calls.length;
           engine.active = true;
+          debug(`length of response packet: ${JSON.stringify(res).length}`);
           if (opts.emitter && opts.emitter instanceof Emitter) {
             opts.emitter.emit('resourceCount', {
               host: engine.host,
@@ -32,7 +33,7 @@ function testEngines(logger, engines, opts) {
         logger.info({rtpengine: engine.host, err}, 'Failure response from rtpengine');
       }
       engine.active = false;
-    });
+    }
   }, opts.pingInterval || 5000);
 }
 
@@ -50,7 +51,7 @@ function testEngines(logger, engines, opts) {
 module.exports = function(arr, opts) {
   assert.ok(Array.isArray(arr) && arr.length, 'jambonz-rtpengine-utils: missing array of host:port rtpengines');
   opts = opts || {};
-  const client = new Client({timeout: opts.timeout || 1500});
+  const client = new Client({timeout: opts.timeout || 2500});
 
   const engines = arr
     .map((hp) => {
