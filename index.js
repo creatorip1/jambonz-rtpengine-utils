@@ -11,7 +11,7 @@ function testEngines(logger, engines, opts) {
     debug('starting rtpengine pings');
     for (const engine of engines) {
       try {
-        const res = await engine.list({limit: 1000});
+        const res = await engine.list({limit: 32});
         if ('ok' === res.result) {
           engine.calls = res.calls.length;
           engine.active = true;
