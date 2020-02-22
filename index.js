@@ -3,11 +3,15 @@ const Client = require('rtpengine-client').Client ;
 const debug = require('debug')('jambonz:rtpengines-utils');
 const Emitter = require('events');
 const noopLogger = {info: () => {}, error: () => {}};
-const selectClient = (engines) => engines.filter((c) => c.active).sort((a, b) => (a.calls - b.calls)).shift();
+let idx = 0;
+const selectClient = (engines) => {
+  const active = engines.filter((c) => c.active);
+  if (active.length) return active[idx++ % active.length];
+};
 
 function testEngines(logger, engines, opts) {
+  debug('starting rtpengine pings');
   return setInterval(async() => {
-    debug('starting rtpengine pings');
     for (const engine of engines) {
       try {
         const res = await engine.list({limit: 32});
@@ -23,7 +27,7 @@ function testEngines(logger, engines, opts) {
               count: engine.calls
             });
           }
-          return;
+          continue;
         }
         logger.debug({rtpengine: engine.host, response: res}, 'Failure response from rtpengine');
         engine.active = false;
